@@ -1,0 +1,1 @@
+The feature we are currently working on is adding a high to low/low to high option for booking ratings, the user will be able choose different genres.
