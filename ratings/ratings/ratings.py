@@ -20,6 +20,16 @@ def get_soup(url):
     return BeautifulSoup(response.text, "html.parser")
 
 
+def clean_price(price_text):
+    if not price_text:
+        return "No price"
+
+    price_text = price_text.strip()
+    price_text = price_text.replace("Â£", "£")
+    price_text = price_text.replace("A£", "£")
+    return price_text
+
+
 def get_categories():
     soup = get_soup(START_URL)
 
@@ -36,10 +46,6 @@ def get_categories():
 
 
 def get_rating(article):
-    """
-    Books to Scrape usually stores rating in something like:
-    <p class="star-rating Three"></p>
-    """
     rating_tag = article.select_one("p.star-rating")
     if not rating_tag:
         return 0
@@ -65,7 +71,8 @@ def scrape_books_from_category(category_url):
             availability_tag = article.select_one("p.instock.availability")
 
             title = title_tag.get("title", "").strip() if title_tag else "No title"
-            price = price_tag.get_text(strip=True) if price_tag else "No price"
+            raw_price = price_tag.get_text(strip=True) if price_tag else "No price"
+            price = clean_price(raw_price)
             availability = availability_tag.get_text(strip=True) if availability_tag else "Unknown"
             rating = get_rating(article)
 
@@ -93,16 +100,23 @@ def choose_genre(categories):
     for i, genre in enumerate(genre_names, start=1):
         print(f"{i}. {genre}")
 
+    normalized_categories = {
+        genre.strip().lower(): (genre, url)
+        for genre, url in categories.items()
+    }
+
     while True:
         choice = input("\nPick a genre by number or exact name: ").strip()
 
         if choice.isdigit():
             num = int(choice)
             if 1 <= num <= len(genre_names):
-                return genre_names[num - 1], categories[genre_names[num - 1]]
+                selected_genre = genre_names[num - 1]
+                return selected_genre, categories[selected_genre]
 
-        if choice in categories:
-            return choice, categories[choice]
+        normalized_choice = choice.lower()
+        if normalized_choice in normalized_categories:
+            return normalized_categories[normalized_choice]
 
         print("Invalid choice. Try again.")
 
