@@ -1,7 +1,4 @@
 Bug Report:
 
-Category Name Input Case Sensitivity
-If a user types a category name with different casing or extra spaces, it will not match, leading to unnecessary "Invalid choice" prompts.
-
 Letter in Front
 When the program displays the pricing of a book, there is an "A" in front of the currency sign and price.
